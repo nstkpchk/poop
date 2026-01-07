@@ -1,0 +1,13 @@
+package org.example.elementservice;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class ElementServiceApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(ElementServiceApplication.class, args);
+    }
+
+}

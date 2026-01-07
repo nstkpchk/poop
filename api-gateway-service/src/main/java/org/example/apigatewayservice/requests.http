@@ -1,0 +1,70 @@
+### ============================================
+### 🏔️ MOUNTAIN CONTROLLER
+### ============================================
+
+### 1. Get all mountains
+GET http://localhost:8080/api/mountains
+Accept: application/json
+
+### 2. Get single mountain by ID
+GET http://localhost:8080/api/mountains/f3ae66ab-8c09-4bee-831e-2b6eba0646ee
+Accept: application/json
+
+### 3. Create new mountain
+POST http://localhost:8080/api/mountains
+Content-Type: application/json
+
+{
+  "name": "Rysy"
+}
+
+### 4. Update existing mountain
+PUT http://localhost:8080/api/mountains/35dd1818-9bde-460d-b06b-b0775f15fabb
+Content-Type: application/json
+
+{
+  "name": "Rysy Updated"
+}
+
+### 5. Delete mountain
+DELETE http://localhost:8080/api/mountains/9f7d7863-ca4d-4c94-bd84-f88debe3ed22
+
+
+### ============================================
+### 🥾 TRAIL CONTROLLER
+### ============================================
+
+### 6. Get all trails
+GET http://localhost:8080/api/trails
+Accept: application/json
+
+### 7. Get single trail by ID
+GET http://localhost:8080/api/trails/737548a8-c898-42af-9c93-a9d382734aac
+Accept: application/json
+
+### 8. Get all trails for a mountain
+GET http://localhost:8080/api/mountains/3c99d104-4762-400f-b477-af55916d4a99/trails
+Accept: application/json
+
+### 9. Add new trail to mountain
+POST http://localhost:8080/api/mountains/9f7d7863-ca4d-4c94-bd84-f88debe3ed22/trails
+Content-Type: application/json
+
+{
+  "name": "Czarny Szlak",
+  "length":99.2,
+  "difficulty": "low"
+}
+
+### 10. Update trail
+PUT http://localhost:8080/api/trails/fce1be8b-aef8-4b6e-92fa-5a4e35faea1c
+Content-Type: application/json
+
+{
+  "name": "Czarny Szlak Updated",
+  "length": 5.5,
+  "difficulty": "MODERATE"
+}
+
+### 11. Delete trail
+DELETE http://localhost:8080/api/trails/ffbb7025-89b5-4918-b037-5a5446e92421
