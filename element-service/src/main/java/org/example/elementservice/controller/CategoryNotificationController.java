@@ -23,6 +23,9 @@ public class CategoryNotificationController {
 
     @DeleteMapping("/{id}")
     public void handleMountainDeleted(@PathVariable UUID id) {
+        // ------
+        System.out.println(">>> [ELEMENT-SERVICE] Otrzymałem polecenie usunięcia góry: " + id);
+        // --------------------------------
         trailService.deleteAllByMountainId(id);
         mountainService.deleteById(id);
     }

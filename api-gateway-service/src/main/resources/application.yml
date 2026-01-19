@@ -6,6 +6,9 @@ spring:
     name: api-gateway-service
   cloud:
     gateway:
+      discovery:
+        locator:
+          enabled: true
       globalcors:
         cors-configurations:
           '[/**]':
@@ -19,7 +22,7 @@ spring:
       routes:
         # 1. TRASA ELEMENTS SERVICE (RELACJE) - MUSI BYĆ BARDZIEJ SZCZEGÓŁOWA
         - id: elements_route_relations
-          uri: ${URL_ELEMENT:http://element-service:8082} # Cel: elements-service
+          uri: lb://element-service # Cel: elements-service
           predicates:
             # POPRAWIONA SKŁADNIA: Używamy */trails/** dla relacji mountains/{id}/trails
             # * dopasowuje segment ID góry.
@@ -29,7 +32,7 @@ spring:
 
         # 2. TRASA ELEMENTS SERVICE (STANDARDOWE SZLAKI)
         - id: elements_route_trails
-          uri: ${URL_ELEMENT:http://element-service:8082} # Cel: elements-service
+          uri: lb://element-service # Cel: elements-service
           predicates:
             # Łapie /api/trails, /api/trails/{id}
             - Path=/api/trails/**
@@ -38,8 +41,14 @@ spring:
 
         # 3. TRASA CATEGORY SERVICE (GÓRY) - NAJBARDZIEJ OGÓLNA
         - id: category_route
-          uri: ${URL_CATEGORY:http://category-service:8081} # Cel: category-service
+          uri: lb://category-service # Cel: category-service
           predicates:
             - Path=/api/mountains/**
           filters:
             - StripPrefix=0
+eureka:
+  client:
+    service-url:
+      defaultZone: ${DISCOVERY_URL:http://localhost:8761/eureka/}
+    register-with-eureka: true
+    fetch-registry: true

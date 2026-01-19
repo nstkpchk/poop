@@ -8,6 +8,7 @@ import org.example.elementservice.service.SimplifiedMountainService;
 import org.example.elementservice.service.TrailService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.net.URI;
 import java.util.List;
@@ -26,8 +27,13 @@ public class TrailController {
         this.simplifiedMountainService = simplifiedMountainService;
     }
 
+
     @GetMapping("/trails")
-    public ResponseEntity<List<TrailListDTO>>  listTrails(){
+    public ResponseEntity<List<TrailListDTO>>  listTrails(HttpServletRequest request){
+        // ------
+        System.out.println(">>> [ELEMENT-SERVICE] Obsługuję żądanie GET /api/trails. Wątek: " + Thread.currentThread().getName());
+        System.out.println(">>> [ELEMENT-SERVICE] Mój adres lokalny (kontener): " + request.getLocalAddr());
+        // --------------------------------
         List<TrailListDTO> trails = trailService.findAll().stream()
                 .map(t->{
                     TrailListDTO dto = new TrailListDTO();

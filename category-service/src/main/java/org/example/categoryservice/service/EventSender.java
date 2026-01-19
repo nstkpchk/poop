@@ -8,10 +8,14 @@ import java.util.UUID;
 
 @Service
 public class EventSender {
-    private final RestTemplate rest = new RestTemplate();
+    private final RestTemplate rest;
 
-    @Value("${trail.service.url:http://localhost:8082}")
+    @Value("${trail.service.url}")
     private String trailServiceUrl;
+
+    public EventSender(RestTemplate rest) {
+        this.rest = rest;
+    }
 
     public void sendMountainDeleted(UUID id) {
         try {

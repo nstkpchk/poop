@@ -1,12 +1,21 @@
 version: '3.8'
 
 services:
+  discovery-service:
+    build: ./discovery-service
+    ports:
+      - "8761:8761"
+    networks:
+      - app-network
+
   category-db:
     image: postgres:15-alpine
     environment:
       - POSTGRES_DB=categorydb
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+    volumes:
+      - category-db-data:/var/lib/postgresql/data
     networks:
       - app-network
     ports:
@@ -18,6 +27,8 @@ services:
       - POSTGRES_DB=elementdb
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+    volumes:
+      - element-db-data:/var/lib/postgresql/data
     networks:
       - app-network
     ports:
@@ -26,7 +37,9 @@ services:
   category-service:
     build: ./category-service
     environment:
-      - TRAIL_SERVICE_URL=http://element-service:8082
+      - TRAIL_SERVICE_URL=http://element-service
+      - DISCOVERY_URL=http://discovery-service:8761/eureka/
+      - SPRING_APPLICATION_NAME=category-service
       - SERVER_PORT=8081
       - SPRING_DATASOURCE_URL=jdbc:postgresql://category-db:5432/categorydb
       - SPRING_DATASOURCE_USERNAME=postgres
@@ -35,13 +48,17 @@ services:
       - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
     depends_on:
       - category-db
+      - discovery-service
     networks:
       - app-network
 
   element-service:
     build: ./element-service
+    deploy:
+      replicas: 2
     environment:
-      - MOUNTAIN_SERVICE_URL=http://category-service:8081
+      - DISCOVERY_URL=http://discovery-service:8761/eureka/
+      - SPRING_APPLICATION_NAME=element-service
       - SERVER_PORT=8082
       - SPRING_DATASOURCE_URL=jdbc:postgresql://element-db:5432/elementdb
       - SPRING_DATASOURCE_USERNAME=postgres
@@ -50,6 +67,7 @@ services:
       - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
     depends_on:
       - element-db
+      - discovery-service
     networks:
       - app-network
 
@@ -58,9 +76,12 @@ services:
     ports:
       - "8080:8080"
     environment:
+      - DISCOVERY_URL=http://discovery-service:8761/eureka/
+      - SPRING_APPLICATION_NAME=api-gateway-service
       - URL_CATEGORY=http://category-service:8081
       - URL_ELEMENT=http://element-service:8082
     depends_on:
+      - discovery-service
       - category-service
       - element-service
     networks:
@@ -80,3 +101,7 @@ services:
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  category-db-data:
+  element-db-data:
