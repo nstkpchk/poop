@@ -1,34 +1,63 @@
 version: '3.8'
 
 services:
-  # Zadanie 2: Kategorie (Góry)
+  category-db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=categorydb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - app-network
+    ports:
+      - "5432:5432"
+
+  element-db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=elementdb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - app-network
+    ports:
+      - "5433:5432" 
+
   category-service:
     build: ./category-service
     environment:
-      - TRAIL_SERVICE_URL=http://element-service:8082/
+      - TRAIL_SERVICE_URL=http://element-service:8082
       - SERVER_PORT=8081
-      - SPRING_DATASOURCE_URL=jdbc:h2:mem:categorydb
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://category-db:5432/categorydb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+    depends_on:
+      - category-db
     networks:
       - app-network
-    # Kontener jest dostępny wewnątrz sieci pod nazwą 'category-service'
 
-  # Zadanie 3: Elementy (Szlaki)
   element-service:
     build: ./element-service
     environment:
-      - MOUNTAIN_SERVICE_URL=http://category-service:8081/
+      - MOUNTAIN_SERVICE_URL=http://category-service:8081
       - SERVER_PORT=8082
-      - SPRING_DATASOURCE_URL=jdbc:h2:mem:elementsdb
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://element-db:5432/elementdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+    depends_on:
+      - element-db
     networks:
       - app-network
 
-  # Zadanie 4: Gateway (Aplikacja zarządzająca)
   api-gateway-service:
     build: ./api-gateway-service
     ports:
-      - "8080:8080" # Udostępniamy port Gatewaya na Windowsie
+      - "8080:8080"
     environment:
-      # Ważne: Gateway łączy się z serwisami po ich nazwach z Docker Compose
       - URL_CATEGORY=http://category-service:8081
       - URL_ELEMENT=http://element-service:8082
     depends_on:
@@ -37,18 +66,17 @@ services:
     networks:
       - app-network
 
-  # Zadanie 1 & 4: Angular
   angular-app:
     build: ./angular/my-app
     ports:
-      - "4200:80" # Angular dostępny na http://localhost:4200
+      - "4200:80"
     environment:
-      # NGINX przekaże zapytania /api/ do tego adresu
       - GATEWAY_URL=http://api-gateway-service:8080
     depends_on:
       - api-gateway-service
     networks:
       - app-network
+
 networks:
   app-network:
     driver: bridge
