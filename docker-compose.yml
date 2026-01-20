@@ -1,6 +1,19 @@
 version: '3.8'
 
 services:
+
+  config-service:
+    build: ./config-service
+    ports:
+      - "8888:8888"
+    networks:
+      - app-network
+    healthcheck:
+      test: "wget --no-verbose --tries=1 --spider http://localhost:8888/actuator/health || exit 1"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+  
   discovery-service:
     build: ./discovery-service
     ports:
@@ -37,14 +50,14 @@ services:
   category-service:
     build: ./category-service
     environment:
-      - TRAIL_SERVICE_URL=http://element-service
-      - DISCOVERY_URL=http://discovery-service:8761/eureka/
-      - SPRING_APPLICATION_NAME=category-service
-      - SERVER_PORT=8081
-     
+      - CONFIG_SERVICE_URL=http://config-service:8888
     depends_on:
-      - category-db
-      - discovery-service
+      category-db:
+        condition: service_started
+      discovery-service:
+        condition: service_started
+      config-service:
+        condition: service_healthy
     networks:
       - app-network
 
@@ -53,17 +66,14 @@ services:
     deploy:
       replicas: 2
     environment:
-      - DISCOVERY_URL=http://discovery-service:8761/eureka/
-      - SPRING_APPLICATION_NAME=element-service
-      - SERVER_PORT=8082
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://element-db:5432/elementdb
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=postgres
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
-      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+      - CONFIG_SERVICE_URL=http://config-service:8888
     depends_on:
-      - element-db
-      - discovery-service
+      discovery-service:
+        condition: service_started
+      config-service:
+        condition: service_healthy
+      element-db:
+        condition: service_started
     networks:
       - app-network
 
@@ -72,14 +82,16 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - DISCOVERY_URL=http://discovery-service:8761/eureka/
-      - SPRING_APPLICATION_NAME=api-gateway-service
-      - URL_CATEGORY=http://category-service:8081
-      - URL_ELEMENT=http://element-service:8082
+      - CONFIG_SERVICE_URL=http://config-service:8888
     depends_on:
-      - discovery-service
-      - category-service
-      - element-service
+      discovery-service:
+        condition: service_started
+      config-service:
+        condition: service_healthy
+      category-service:
+        condition: service_started
+      element-service:
+        condition: service_started
     networks:
       - app-network
 
