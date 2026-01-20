@@ -3,10 +3,8 @@ package org.example.elementservice.controller;
 import org.example.elementservice.dto.SimplifiedMountainDTO;
 import org.example.elementservice.service.SimplifiedMountainService;
 import org.example.elementservice.service.TrailService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 import java.util.UUID;
 
 @RestController

@@ -41,11 +41,7 @@ services:
       - DISCOVERY_URL=http://discovery-service:8761/eureka/
       - SPRING_APPLICATION_NAME=category-service
       - SERVER_PORT=8081
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://category-db:5432/categorydb
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=postgres
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+     
     depends_on:
       - category-db
       - discovery-service
@@ -63,7 +59,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://element-db:5432/elementdb
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
       - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
     depends_on:
       - element-db
